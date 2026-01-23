@@ -1,6 +1,5 @@
 import
 {useState} from "react";
-import ModelViewer from "./components/ModelViewer";
 import ImageGallery from "./components/ImageGallery";
 
 interface SideViews
@@ -34,7 +33,7 @@ function App()
     const [response, setResponse] = useState < ApiResponse | null > (null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState < string | null > (null);
-    const [activeTab, setActiveTab] = useState < "3d" | "gallery" > ("3d");
+
 
     const sendToAI = async () => {
         if (!image || !productName)
@@ -97,8 +96,7 @@ function App()
                     WebkitTextFillColor: "transparent"
                 }
             }>
-                AI 360° Product Viewer
-            </h1>
+                {/* AI 360° Product Viewer */} </h1>
             <p style={
                 {
                     color: "#888",
@@ -262,54 +260,7 @@ function App()
             {/* Results */}
             {
             response && response.side_views && (
-                <div> {/* Tabs */}
-                    <div style={
-                        {
-                            display: "flex",
-                            gap: "10px",
-                            marginBottom: "20px",
-                            borderBottom: "2px solid #333"
-                        }
-                    }>
-                        <button onClick={
-                                () => setActiveTab("3d")
-                            }
-                            style={
-                                {
-                                    padding: "12px 24px",
-                                    background: activeTab === "3d" ? "#646cff" : "transparent",
-                                    color: "white",
-                                    border: "none",
-                                    borderBottom: activeTab === "3d" ? "3px solid #646cff" : "none",
-                                    cursor: "pointer",
-                                    fontSize: "16px",
-                                    fontWeight: "600",
-                                    transition: "all 0.2s"
-                                }
-                        }>
-                            🎮 3D Viewer
-                        </button>
-                        <button onClick={
-                                () => setActiveTab("gallery")
-                            }
-                            style={
-                                {
-                                    padding: "12px 24px",
-                                    background: activeTab === "gallery" ? "#646cff" : "transparent",
-                                    color: "white",
-                                    border: "none",
-                                    borderBottom: activeTab === "gallery" ? "3px solid #646cff" : "none",
-                                    cursor: "pointer",
-                                    fontSize: "16px",
-                                    fontWeight: "600",
-                                    transition: "all 0.2s"
-                                }
-                        }>
-                            🖼️ Image Gallery
-                        </button>
-                    </div>
-
-                    {/* Content */}
+                <div> {/* Content */}
                     <div style={
                         {
                             background: "#1a1a1a",
@@ -318,29 +269,13 @@ function App()
                             minHeight: "500px"
                         }
                     }>
-                        {
-                        activeTab === "3d" && (
-                            <div>
-                                <h2 style={
-                                    {marginBottom: "20px"}
-                                }>Interactive 3D View</h2>
-                                <ModelViewer images={
-                                    response.side_views
-                                }/>
-                            </div>
-                        )
-                    }
-
-                        {
-                        activeTab === "gallery" && (
-                            <ImageGallery images={
-                                    response.side_views
-                                }
-                                productName={
-                                    response.product_name
-                                }/>
-                        )
-                    } </div>
+                        <ImageGallery images={
+                                response.side_views
+                            }
+                            productName={
+                                response.product_name
+                            }/>
+                    </div>
 
                     {/* Stats */}
                     <div style={
