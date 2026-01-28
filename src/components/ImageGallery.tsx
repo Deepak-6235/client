@@ -1,5 +1,9 @@
 import
 {useState} from 'react';
+import
+{motion, AnimatePresence} from 'framer-motion';
+import
+{Maximize2, X, Download} from 'lucide-react';
 
 interface ImageGalleryProps
 {
@@ -42,141 +46,236 @@ export default function ImageGallery(
     ];
 
     return (
-        <div style={
-            {marginTop: '30px'}
-        }>
-            <h3 style={
-                {marginBottom: '20px'}
-            }>Product Views</h3>
-
+        <>
             <div style={
                 {
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                    gap: '20px',
-                    marginBottom: '20px'
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: '24px'
                 }
             }>
                 {
-                imageData.map((img) => (
-                    <div key={
+                imageData.map((img, index) => (
+                    <motion.div key={
                             img.key
+                        }
+                        initial={
+                            {
+                                opacity: 0,
+                                y: 20
+                            }
+                        }
+                        animate={
+                            {
+                                opacity: 1,
+                                y: 0
+                            }
+                        }
+                        transition={
+                            {
+                                delay: index * 0.1
+                            }
+                        }
+                        whileHover={
+                            {
+                                y: -5,
+                                boxShadow: "0 10px 30px -10px rgba(0,0,0,0.5)"
+                            }
                         }
                         style={
                             {
-                                border: '2px solid #333',
-                                borderRadius: '8px',
+                                position: 'relative',
+                                borderRadius: '16px',
                                 overflow: 'hidden',
+                                background: 'var(--bg-input)',
+                                border: '1px solid var(--glass-border)',
                                 cursor: 'pointer',
-                                transition: 'transform 0.2s, border-color 0.2s'
+                                aspectRatio: '1'
                             }
                         }
                         onClick={
                             () => setSelectedImage(img.url)
-                        }
-                        onMouseEnter={
-                            (e) => {
-                                e.currentTarget.style.transform = 'scale(1.05)';
-                                e.currentTarget.style.borderColor = '#646cff';
-                            }
-                        }
-                        onMouseLeave={
-                            (e) => {
-                                e.currentTarget.style.transform = 'scale(1)';
-                                e.currentTarget.style.borderColor = '#333';
-                            }
                     }>
-                        <img src={
-                                img.url
+                        <div style={
+                            {
+                                width: '100%',
+                                height: '100%',
+                                padding: '20px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                background: 'radial-gradient(circle at center, rgba(255,255,255,0.05), transparent)'
                             }
-                            alt={
-                                `${productName} - ${
-                                    img.label
-                                }`
+                        }>
+                            <img src={
+                                    img.url
+                                }
+                                alt={
+                                    `${productName} - ${
+                                        img.label
+                                    }`
+                                }
+                                style={
+                                    {
+                                        maxWidth: '100%',
+                                        maxHeight: '100%',
+                                        objectFit: 'contain',
+                                        filter: 'drop-shadow(0 10px 10px rgba(0,0,0,0.3))'
+                                    }
+                                }/>
+                        </div>
+
+                        {/* Overlay on hover */}
+                        <motion.div initial={
+                                {opacity: 0}
+                            }
+                            whileHover={
+                                {opacity: 1}
+                            }
+                            transition={
+                                {duration: 0.2}
                             }
                             style={
                                 {
-                                    width: '100%',
-                                    height: '200px',
-                                    objectFit: 'contain',
-                                    background: '#f5f5f5'
+                                    position: 'absolute',
+                                    inset: 0,
+                                    background: 'rgba(0,0,0,0.4)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backdropFilter: 'blur(2px)'
                                 }
-                            }/>
+                        }>
+                            <Maximize2 color="white"
+                                size={24}/>
+                        </motion.div>
+
                         <div style={
                             {
-                                padding: '10px',
-                                textAlign: 'center',
-                                background: '#1a1a1a',
-                                color: 'white',
-                                fontSize: '14px',
-                                fontWeight: '500'
+                                position: 'absolute',
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                padding: '12px',
+                                background: 'rgba(0,0,0,0.6)',
+                                backdropFilter: 'blur(10px)',
+                                borderTop: '1px solid var(--glass-border)',
+                                textAlign: 'center'
                             }
                         }>
-                            {
-                            img.label
-                        } </div>
-                    </div>
+                            <span style={
+                                {
+                                    fontSize: '0.85rem',
+                                    fontWeight: '500',
+                                    color: 'var(--text-muted)'
+                                }
+                            }>
+                                {
+                                img.label
+                            } </span>
+                        </div>
+                    </motion.div>
                 ))
             } </div>
 
-            {/* Lightbox for enlarged view */}
-            {
-            selectedImage && (
-                <div style={
-                        {
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            background: 'rgba(0, 0, 0, 0.9)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            zIndex: 1000,
-                            cursor: 'pointer'
+            <AnimatePresence> {
+                selectedImage && (
+                    <motion.div initial={
+                            {opacity: 0}
                         }
-                    }
-                    onClick={
-                        () => setSelectedImage(null)
-                }>
-                    <img src={selectedImage}
-                        alt={productName}
+                        animate={
+                            {opacity: 1}
+                        }
+                        exit={
+                            {opacity: 0}
+                        }
                         style={
                             {
-                                maxWidth: '90%',
-                                maxHeight: '90%',
-                                objectFit: 'contain'
-                            }
-                        }/>
-                    <button style={
-                            {
-                                position: 'absolute',
-                                top: '20px',
-                                right: '20px',
-                                background: '#646cff',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '50%',
-                                width: '40px',
-                                height: '40px',
-                                fontSize: '24px',
-                                cursor: 'pointer',
+                                position: 'fixed',
+                                inset: 0,
+                                background: 'rgba(0, 0, 0, 0.95)',
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                zIndex: 1000,
+                                backdropFilter: 'blur(10px)'
                             }
                         }
                         onClick={
-                            (e) => {
-                                e.stopPropagation();
-                                setSelectedImage(null);
-                            }
+                            () => setSelectedImage(null)
                     }>
-                        ×
-                    </button>
-                </div>
-            )
-        } </div>
+                        <motion.div initial={
+                                {
+                                    scale: 0.9,
+                                    opacity: 0
+                                }
+                            }
+                            animate={
+                                {
+                                    scale: 1,
+                                    opacity: 1
+                                }
+                            }
+                            exit={
+                                {
+                                    scale: 0.9,
+                                    opacity: 0
+                                }
+                            }
+                            onClick={
+                                (e) => e.stopPropagation()
+                            }
+                            style={
+                                {
+                                    position: 'relative',
+                                    maxWidth: '90vw',
+                                    maxHeight: '90vh'
+                                }
+                        }>
+                            <img src={selectedImage}
+                                alt={productName}
+                                style={
+                                    {
+                                        maxWidth: '100%',
+                                        maxHeight: '85vh',
+                                        borderRadius: '12px',
+                                        boxShadow: '0 0 50px rgba(0,0,0,0.5)'
+                                    }
+                                }/>
+
+                            <div style={
+                                {
+                                    position: 'absolute',
+                                    top: '-50px',
+                                    right: 0,
+                                    display: 'flex',
+                                    gap: '12px'
+                                }
+                            }>
+                                <button onClick={
+                                        () => setSelectedImage(null)
+                                    }
+                                    style={
+                                        {
+                                            background: 'rgba(255,255,255,0.1)',
+                                            border: 'none',
+                                            borderRadius: '50%',
+                                            width: '40px',
+                                            height: '40px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            color: 'white'
+                                        }
+                                }>
+                                    <X size={20}/>
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )
+            } </AnimatePresence>
+        </>
     );
 }
