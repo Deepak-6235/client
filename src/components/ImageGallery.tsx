@@ -12,6 +12,8 @@ interface ImageGalleryProps
         right: string;
         back: string;
         left: string;
+        top: string;
+        bottom: string;
     };
     productName: string;
 }
@@ -42,6 +44,16 @@ export default function ImageGallery(
             key: 'left',
             label: 'Left View',
             url: images.left
+        },
+        {
+            key: 'top',
+            label: 'Top View',
+            url: images.top
+        },
+        {
+            key: 'bottom',
+            label: 'Bottom View',
+            url: images.bottom
         },
     ];
 

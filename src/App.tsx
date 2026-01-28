@@ -20,6 +20,8 @@ interface SideViews
     right: string;
     back: string;
     left: string;
+    top: string;
+    bottom: string;
 }
 
 interface ApiResponse
