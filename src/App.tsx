@@ -37,7 +37,15 @@ interface ApiResponse
     side_views?: SideViews;
     video_url?: string;
     processing_time?: string;
+    total_processing_time?: string;
     generation_time_seconds?: number;
+    timing_breakdown?: {
+        upload_time: string;
+        bg_removal_time: string;
+        ai_generation_time: string;
+        download_time: string;
+        s3_upload_time: string;
+    };
 }
 
 function App()
@@ -108,6 +116,7 @@ function App()
             const formData = new FormData();
             formData.append("image", image);
             formData.append("product_name", productName);
+            formData.append("skip_bg_removal", "true");  // Skip BG removal for faster processing
 
             const res = await fetch(`${API_BASE_URL}/ai/video`, {
                 method: "POST",
@@ -117,6 +126,17 @@ function App()
             const data = await res.json();
 
             console.log("Video generation response:", data);
+
+            // Log timing breakdown to console for analysis
+            if (data.timing_breakdown) {
+                console.log("⏱️ TIMING BREAKDOWN:");
+                console.log(`  Upload: ${data.timing_breakdown.upload_time}`);
+                console.log(`  BG Removal: ${data.timing_breakdown.bg_removal_time}`);
+                console.log(`  AI Generation: ${data.timing_breakdown.ai_generation_time}`);
+                console.log(`  Download: ${data.timing_breakdown.download_time}`);
+                console.log(`  S3 Upload: ${data.timing_breakdown.s3_upload_time}`);
+                console.log(`  TOTAL: ${data.total_processing_time}`);
+            }
 
             if (data.status === "error") {
                 setError(data.message || data.detail || "Failed to generate video");
@@ -614,7 +634,7 @@ function App()
                                             }
                                         }>
                                             <Clock size={14}/> {
-                                            response.generation_time_seconds || response.processing_time
+                                            response.total_processing_time || response.generation_time_seconds || response.processing_time
                                         }
                                         </div>
                                     </div>
@@ -637,17 +657,37 @@ function App()
                                         padding: "20px",
                                         border: "1px solid var(--glass-border)"
                                     }}>
-                                        <h3 style={{
-                                            fontSize: "1.2rem",
-                                            fontWeight: "600",
-                                            marginBottom: "16px",
+                                        <div style={{
                                             display: "flex",
+                                            justifyContent: "space-between",
                                             alignItems: "center",
-                                            gap: "10px"
+                                            marginBottom: "16px"
                                         }}>
-                                            <Video size={24} color="var(--accent)" />
-                                            Generated 360° Product Video
-                                        </h3>
+                                            <h3 style={{
+                                                fontSize: "1.2rem",
+                                                fontWeight: "600",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "10px",
+                                                margin: 0
+                                            }}>
+                                                <Video size={24} color="var(--accent)" />
+                                                Generated 360° Product Video
+                                            </h3>
+                                            {response.timing_breakdown && (
+                                                <div style={{
+                                                    fontSize: "0.85rem",
+                                                    color: "var(--text-muted)",
+                                                    textAlign: "right"
+                                                }}>
+                                                    <div>AI: {response.timing_breakdown.ai_generation_time}</div>
+                                                    <div style={{ fontSize: "0.75rem" }}>
+                                                        Download: {response.timing_breakdown.download_time} |
+                                                        S3: {response.timing_breakdown.s3_upload_time}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                         <video
                                             controls
                                             autoPlay
