@@ -103,9 +103,29 @@ function App()
         setResponse(null);
 
         try {
-            // Placeholder for video generation logic
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            setError("Video generation feature coming soon!");
+            const formData = new FormData();
+            formData.append("image", image);
+            formData.append("product_name", productName);
+
+            const res = await fetch(`${API_BASE_URL}/ai/video`, {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await res.json();
+
+            if (data.status === "error") {
+                setError(data.message || "Failed to generate video");
+            } else {
+                // Display success message with video URL
+                if (data.video_url) {
+                    alert(`Video generated successfully!\n\nVideo URL: ${data.video_url}\n\nProcessing time: ${data.processing_time}`);
+                    // You can also open the video in a new tab
+                    window.open(data.video_url, '_blank');
+                } else {
+                    setError("Video generation failed - no video returned");
+                }
+            }
         } catch (err) {
             setError("Network error: " + (err as Error).message);
         } finally {
