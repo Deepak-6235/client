@@ -29,13 +29,15 @@ interface ApiResponse
     status: string;
     product_name: string;
     analysis: any;
-    model_3d: {
+    model_3d?: {
         url: string;
         type: string;
         format: string;
     };
-    side_views: SideViews;
-    generation_time_seconds: number;
+    side_views?: SideViews;
+    video_url?: string;
+    processing_time?: string;
+    generation_time_seconds?: number;
 }
 
 function App()
@@ -114,17 +116,17 @@ function App()
 
             const data = await res.json();
 
+            console.log("Video generation response:", data);
+
             if (data.status === "error") {
-                setError(data.message || "Failed to generate video");
+                setError(data.message || data.detail || "Failed to generate video");
+            } else if (!data.video_url) {
+                // Check if there's an error in the analysis
+                const errorMsg = data.analysis?.status || "Video generation failed - no video returned";
+                setError(errorMsg);
             } else {
-                // Display success message with video URL
-                if (data.video_url) {
-                    alert(`Video generated successfully!\n\nVideo URL: ${data.video_url}\n\nProcessing time: ${data.processing_time}`);
-                    // You can also open the video in a new tab
-                    window.open(data.video_url, '_blank');
-                } else {
-                    setError("Video generation failed - no video returned");
-                }
+                // Set response to display video
+                setResponse(data);
             }
         } catch (err) {
             setError("Network error: " + (err as Error).message);
@@ -612,18 +614,93 @@ function App()
                                             }
                                         }>
                                             <Clock size={14}/> {
-                                            response.generation_time_seconds
-                                        }s
+                                            response.generation_time_seconds || response.processing_time
+                                        }
                                         </div>
                                     </div>
                                 </div>
 
-                                <ImageGallery images={
-                                        response.side_views
-                                    }
-                                    productName={
-                                        response.product_name
-                                    }/>
+                                {response.side_views && (
+                                    <ImageGallery images={
+                                            response.side_views
+                                        }
+                                        productName={
+                                            response.product_name
+                                        }/>
+                                )}
+
+                                {response.video_url && (
+                                    <div style={{
+                                        marginTop: response.side_views ? "24px" : "0",
+                                        background: "rgba(0, 0, 0, 0.3)",
+                                        borderRadius: "16px",
+                                        padding: "20px",
+                                        border: "1px solid var(--glass-border)"
+                                    }}>
+                                        <h3 style={{
+                                            fontSize: "1.2rem",
+                                            fontWeight: "600",
+                                            marginBottom: "16px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "10px"
+                                        }}>
+                                            <Video size={24} color="var(--accent)" />
+                                            Generated 360° Product Video
+                                        </h3>
+                                        <video
+                                            controls
+                                            autoPlay
+                                            loop
+                                            style={{
+                                                width: "100%",
+                                                borderRadius: "12px",
+                                                backgroundColor: "#000"
+                                            }}
+                                        >
+                                            <source src={response.video_url} type="video/mp4" />
+                                            Your browser does not support the video tag.
+                                        </video>
+                                        <div style={{
+                                            marginTop: "12px",
+                                            display: "flex",
+                                            gap: "12px"
+                                        }}>
+                                            <a
+                                                href={response.video_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style={{
+                                                    padding: "10px 20px",
+                                                    background: "var(--gradient-primary)",
+                                                    color: "white",
+                                                    borderRadius: "8px",
+                                                    textDecoration: "none",
+                                                    fontSize: "14px",
+                                                    fontWeight: "500"
+                                                }}
+                                            >
+                                                Open in New Tab
+                                            </a>
+                                            <a
+                                                href={response.video_url}
+                                                download
+                                                style={{
+                                                    padding: "10px 20px",
+                                                    background: "rgba(139, 92, 246, 0.2)",
+                                                    border: "1px solid var(--accent)",
+                                                    color: "var(--accent)",
+                                                    borderRadius: "8px",
+                                                    textDecoration: "none",
+                                                    fontSize: "14px",
+                                                    fontWeight: "500"
+                                                }}
+                                            >
+                                                Download Video
+                                            </a>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
                     )
