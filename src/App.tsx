@@ -5,12 +5,12 @@ import
 import
 {
     Upload,
-    Rotate3d,
     Package,
     Clock,
     Loader2,
     Sparkles,
-    Image as ImageIcon
+    Image as ImageIcon,
+    Video
 } from "lucide-react";
 import ImageGallery from "./components/ImageGallery";
 
@@ -88,6 +88,27 @@ function App()
             ).message);
         } finally
         {
+            setLoading(false);
+        }
+    };
+
+    const sendToVideoAI = async () => {
+        if (!image || !productName) {
+            setError("Please provide both product name and image");
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+        setResponse(null);
+
+        try {
+            // Placeholder for video generation logic
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            setError("Video generation feature coming soon!");
+        } catch (err) {
+            setError("Network error: " + (err as Error).message);
+        } finally {
             setLoading(false);
         }
     };
@@ -312,20 +333,13 @@ function App()
                         } </div>
                     </div>
 
-                    <motion.button whileHover={
-                            {
-                                scale: 1.02,
-                                boxShadow: "0 0 20px rgba(99, 102, 241, 0.4)"
-                            }
-                        }
-                        whileTap={
-                            {scale: 0.98}
-                        }
-                        onClick={sendToAI}
-                        disabled={loading}
-                        style={
-                            {
-                                width: "100%",
+                    <div style={{ display: "flex", gap: "16px" }}>
+                        <motion.button whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(99, 102, 241, 0.4)" }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={sendToAI}
+                            disabled={loading}
+                            style={{
+                                flex: 1,
                                 padding: "16px",
                                 background: "var(--gradient-primary)",
                                 color: "white",
@@ -339,22 +353,46 @@ function App()
                                 justifyContent: "center",
                                 gap: "10px",
                                 opacity: loading ? 0.7 : 1
+                            }}>
+                            {
+                                loading ? (
+                                    <>
+                                        <Loader2 className="animate-spin" size={20} />
+                                        Generating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles size={20} />
+                                        Generate
+                                    </>
+                                )
                             }
-                    }>
-                        {
-                        loading ? (
-                            <>
-                                <Loader2 className="animate-spin"
-                                    size={20}/>
-                                Generating Assets...
-                            </>
-                        ) : (
-                            <>
-                                <Sparkles size={20}/>
-                                Generate
-                            </>
-                        )
-                    } </motion.button>
+                        </motion.button>
+
+                        <motion.button whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(139, 92, 246, 0.4)" }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={sendToVideoAI}
+                            disabled={loading}
+                            style={{
+                                flex: 1,
+                                padding: "16px",
+                                background: "rgba(139, 92, 246, 0.2)",
+                                border: "1px solid var(--accent)",
+                                color: "var(--accent)",
+                                borderRadius: "14px",
+                                fontSize: "16px",
+                                fontWeight: "600",
+                                cursor: loading ? "not-allowed" : "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "10px",
+                                opacity: loading ? 0.7 : 1
+                            }}>
+                            <Video size={20} />
+                            Generate Video
+                        </motion.button>
+                    </div>
 
                     <AnimatePresence> {
                         error && (
